@@ -1,0 +1,24 @@
+2026-06-28 23:40:45,731 | INFO | Uruchomiono UniProt Enzyme Explorer.
+2026-06-28 23:47:14,830 | INFO | Utworzono demonstracyjny rekord enzymu.
+2026-06-29 00:57:05,400 | INFO | Pobrano rekord UniProt: P00918
+2026-06-29 01:05:57,388 | INFO | Pobieranie rekordu: P00918
+2026-06-29 01:06:00,291 | INFO | Pobrano rekord: P00918
+2026-06-29 01:06:00,292 | INFO | Pobieranie rekordu: P04040
+2026-06-29 01:06:03,161 | INFO | Pobrano rekord: P04040
+2026-06-29 01:06:03,161 | INFO | Pobieranie rekordu: P00338
+2026-06-29 01:06:07,878 | INFO | Pobrano rekord: P00338
+2026-06-29 01:10:10,857 | INFO | Pobieranie rekordu: P00918
+2026-06-29 01:10:12,542 | INFO | Pobrano rekord: P00918
+2026-06-29 01:10:12,542 | INFO | Pobieranie rekordu: P04040
+2026-06-29 01:10:15,583 | INFO | Pobrano rekord: P04040
+2026-06-29 01:10:15,583 | INFO | Pobieranie rekordu: P00338
+2026-06-29 01:10:17,647 | INFO | Pobrano rekord: P00338
+2026-06-29 01:10:17,656 | INFO | Zapisano raport CSV: C:\Users\User\PycharmProjects\PythonProject2\outputs\reports\enzyme_report.csv
+2026-06-29 23:26:42,962 | INFO | Pobieranie rekordu: P00918
+2026-06-29 23:26:44,377 | INFO | Pobrano rekord: P00918
+2026-06-29 23:26:44,377 | INFO | Pobieranie rekordu: P04040
+2026-06-29 23:26:45,463 | INFO | Pobrano rekord: P04040
+2026-06-29 23:26:45,463 | INFO | Pobieranie rekordu: P00338
+2026-06-29 23:26:46,554 | INFO | Pobrano rekord: P00338
+2026-06-29 23:26:46,589 | INFO | Zapisano raport CSV: C:\Users\User\PycharmProjects\PythonProject2\outputs\reports\enzyme_report.csv
+2026-06-29 23:26:46,698 | INFO | Zapisano raport XLSX: C:\Users\User\PycharmProjects\PythonProject2\outputs\reports\enzyme_report.xlsx
