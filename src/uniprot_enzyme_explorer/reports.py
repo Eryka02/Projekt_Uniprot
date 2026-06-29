@@ -1,6 +1,9 @@
 import csv
 from pathlib import Path
 
+from openpyxl import Workbook
+from openpyxl.styles import Alignment, Font, PatternFill
+
 from src.uniprot_enzyme_explorer.models import EnzymeRecord
 
 
@@ -43,5 +46,81 @@ def export_to_csv(
                 "ec_number": record.ec_number,
                 "sequence": record.sequence,
             })
+
+    return output_file
+
+
+def export_to_xlsx(
+    records: list[EnzymeRecord],
+    output_file: Path,
+) -> Path:
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+
+    workbook = Workbook()
+    worksheet = workbook.active
+    worksheet.title = "Enzymy"
+
+    headers = [
+        "ID UniProt",
+        "Nazwa białka",
+        "Organizm",
+        "Długość sekwencji",
+        "Masa [Da]",
+        "Numer EC",
+        "Sekwencja aminokwasowa",
+    ]
+
+    worksheet.append(headers)
+
+    for record in records:
+        worksheet.append([
+            record.uniprot_id,
+            record.protein_name,
+            record.organism,
+            record.sequence_length,
+            record.molecular_weight,
+            record.ec_number,
+            record.sequence,
+        ])
+
+    header_fill = PatternFill(
+        fill_type="solid",
+        fgColor="1F4E78",
+    )
+
+    for cell in worksheet[1]:
+        cell.font = Font(bold=True, color="FFFFFF")
+        cell.fill = header_fill
+        cell.alignment = Alignment(horizontal="center")
+
+    column_widths = {
+        "A": 14,
+        "B": 38,
+        "C": 25,
+        "D": 18,
+        "E": 14,
+        "F": 14,
+        "G": 60,
+    }
+
+    for column, width in column_widths.items():
+        worksheet.column_dimensions[column].width = width
+
+    for row_number in range(2, worksheet.max_row + 1):
+        worksheet.row_dimensions[row_number].height = 30
+
+        for cell in worksheet[row_number]:
+            cell.alignment = Alignment(vertical="top")
+
+        worksheet.cell(row_number, 7).alignment = Alignment(
+            vertical="top",
+            wrap_text=True,
+        )
+
+    worksheet.freeze_panes = "A2"
+    worksheet.auto_filter.ref = worksheet.dimensions
+    worksheet.sheet_view.showGridLines = False
+
+    workbook.save(output_file)
 
     return output_file

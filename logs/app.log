@@ -22,3 +22,59 @@
 2026-06-29 23:26:46,554 | INFO | Pobrano rekord: P00338
 2026-06-29 23:26:46,589 | INFO | Zapisano raport CSV: C:\Users\User\PycharmProjects\PythonProject2\outputs\reports\enzyme_report.csv
 2026-06-29 23:26:46,698 | INFO | Zapisano raport XLSX: C:\Users\User\PycharmProjects\PythonProject2\outputs\reports\enzyme_report.xlsx
+2026-06-30 00:01:26,522 | INFO | Pobieranie rekordu: P00918
+2026-06-30 00:01:27,967 | INFO | Pobrano rekord: P00918
+2026-06-30 00:01:27,967 | INFO | Pobieranie rekordu: P04040
+2026-06-30 00:01:29,807 | INFO | Pobrano rekord: P04040
+2026-06-30 00:01:29,807 | INFO | Pobieranie rekordu: P00338
+2026-06-30 00:01:31,054 | INFO | Pobrano rekord: P00338
+2026-06-30 00:01:31,061 | INFO | Zapisano raport CSV: C:\Users\User\PycharmProjects\PythonProject2\outputs\reports\enzyme_report.csv
+2026-06-30 00:01:31,122 | INFO | Zapisano raport XLSX: C:\Users\User\PycharmProjects\PythonProject2\outputs\reports\enzyme_report.xlsx
+2026-06-30 00:01:40,140 | INFO | Utworzono wykresy.
+2026-06-30 00:12:22,246 | INFO | Uruchomiono UniProt Enzyme Explorer.
+2026-06-30 00:12:22,248 | INFO | Pobieranie rekordu: P00918
+2026-06-30 00:12:28,114 | INFO | Pobrano rekord: P00918
+2026-06-30 00:12:28,115 | INFO | Pobieranie rekordu: P04040
+2026-06-30 00:12:31,904 | INFO | Pobrano rekord: P04040
+2026-06-30 00:12:31,905 | INFO | Pobieranie rekordu: P00338
+2026-06-30 00:12:37,575 | INFO | Pobrano rekord: P00338
+2026-06-30 00:12:37,620 | INFO | Zapisano raport CSV: C:\Users\User\PycharmProjects\PythonProject2\outputs\reports\enzyme_report.csv
+2026-06-30 00:12:37,718 | INFO | Zapisano raport XLSX: C:\Users\User\PycharmProjects\PythonProject2\outputs\reports\enzyme_report.xlsx
+2026-06-30 00:12:44,724 | INFO | Utworzono wykresy.
+2026-06-30 00:16:11,934 | INFO | Uruchomiono interfejs graficzny.
+2026-06-30 00:16:19,248 | INFO | Pobieranie rekordu: P00918
+2026-06-30 00:16:23,241 | INFO | Pobrano rekord: P00918
+2026-06-30 00:16:23,242 | INFO | Pobieranie rekordu: P04040
+2026-06-30 00:16:26,100 | INFO | Pobrano rekord: P04040
+2026-06-30 00:16:26,101 | INFO | Pobieranie rekordu: P00338
+2026-06-30 00:16:28,968 | INFO | Pobrano rekord: P00338
+2026-06-30 00:25:38,432 | INFO | Uruchomiono interfejs graficzny.
+2026-06-30 00:25:44,012 | INFO | Pobieranie rekordu: P00918
+2026-06-30 00:25:47,675 | INFO | Pobrano rekord: P00918
+2026-06-30 00:25:47,675 | INFO | Pobieranie rekordu: P04040
+2026-06-30 00:25:51,541 | INFO | Pobrano rekord: P04040
+2026-06-30 00:25:51,542 | INFO | Pobieranie rekordu: P00338
+2026-06-30 00:25:55,223 | INFO | Pobrano rekord: P00338
+2026-06-30 00:26:06,812 | INFO | Pobieranie rekordu: P00918
+2026-06-30 00:26:08,470 | INFO | Pobrano rekord: P00918
+2026-06-30 00:45:45,027 | INFO | Uruchomiono interfejs graficzny.
+2026-06-30 00:45:49,797 | INFO | Pobieranie rekordu: P00918
+2026-06-30 00:45:54,552 | INFO | Pobrano rekord: P00918
+2026-06-30 00:45:54,552 | INFO | Pobieranie rekordu: P04040
+2026-06-30 00:45:58,036 | INFO | Pobrano rekord: P04040
+2026-06-30 00:45:58,037 | INFO | Pobieranie rekordu: P00338
+2026-06-30 00:46:01,611 | INFO | Pobrano rekord: P00338
+2026-06-30 00:46:05,578 | INFO | Utworzono wykresy z poziomu GUI.
+2026-06-30 00:46:32,646 | INFO | Utworzono wykresy z poziomu GUI.
+2026-06-30 00:46:40,037 | INFO | Zapisano raport XLSX: C:\Users\User\PycharmProjects\PythonProject2\outputs\reports\enzyme_report.xlsx
+2026-06-30 00:46:42,868 | INFO | Zapisano raport CSV: C:\Users\User\PycharmProjects\PythonProject2\outputs\reports\enzyme_report.csv
+2026-06-30 00:54:44,469 | INFO | Uruchomiono interfejs graficzny.
+2026-06-30 00:54:47,160 | INFO | Pobieranie rekordu: P00918
+2026-06-30 00:54:50,799 | INFO | Pobrano rekord: P00918
+2026-06-30 00:54:50,799 | INFO | Pobieranie rekordu: P04040
+2026-06-30 00:54:55,099 | INFO | Pobrano rekord: P04040
+2026-06-30 00:54:55,099 | INFO | Pobieranie rekordu: P00338
+2026-06-30 00:54:58,477 | INFO | Pobrano rekord: P00338
+2026-06-30 00:55:07,230 | INFO | Zapisano raport CSV: C:\Users\User\Desktop\enzyme_report.csv
+2026-06-30 00:55:17,848 | INFO | Utworzono wykresy z poziomu GUI.
+2026-06-30 00:56:24,337 | INFO | Zapisano raport XLSX: C:\Users\User\Desktop\enzyme_report.xlsx

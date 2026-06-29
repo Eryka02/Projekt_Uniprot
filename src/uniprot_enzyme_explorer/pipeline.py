@@ -1,4 +1,5 @@
 import logging
+import re
 from pathlib import Path
 
 from src.uniprot_enzyme_explorer.models import EnzymeRecord
@@ -8,21 +9,28 @@ from src.uniprot_enzyme_explorer.uniprot_client import (
 )
 
 
-def load_uniprot_ids(file_path: Path) -> list[str]:
+def parse_uniprot_ids(text: str) -> list[str]:
+    candidates = re.split(r"[\s,;]+", text.upper())
     uniprot_ids = []
+
+    for candidate in candidates:
+        candidate = candidate.strip()
+
+        if candidate and candidate not in uniprot_ids:
+            uniprot_ids.append(candidate)
+
+    return uniprot_ids
+
+
+def load_uniprot_ids(file_path: Path) -> list[str]:
+    lines = []
 
     with file_path.open(encoding="utf-8") as file:
         for line in file:
-            uniprot_id = line.strip()
+            if not line.lstrip().startswith("#"):
+                lines.append(line)
 
-            if (
-                uniprot_id
-                and not uniprot_id.startswith("#")
-                and uniprot_id not in uniprot_ids
-            ):
-                uniprot_ids.append(uniprot_id)
-
-    return uniprot_ids
+    return parse_uniprot_ids("".join(lines))
 
 
 def harvest_enzymes(

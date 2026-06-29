@@ -9,7 +9,8 @@ from src.uniprot_enzyme_explorer.reports import (
     export_to_csv,
     export_to_xlsx,
 )
-
+from src.uniprot_enzyme_explorer.charts import create_charts
+from src.uniprot_enzyme_explorer.logger_setup import setup_logging
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 INPUT_FILE = PROJECT_ROOT / "data" / "input_ids.txt"
@@ -17,11 +18,12 @@ REPORT_FILE = PROJECT_ROOT / "outputs" / "reports" / "enzyme_report.csv"
 XLSX_REPORT_FILE = (
     PROJECT_ROOT / "outputs" / "reports" / "enzyme_report.xlsx"
 )
+CHARTS_DIRECTORY = PROJECT_ROOT / "outputs" / "charts"
 LOG_FILE = PROJECT_ROOT / "logs" / "app.log"
 
 
 def configure_logging():
-    LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
+    setup_logging(LOG_FILE)
 
     logging.basicConfig(
         filename=LOG_FILE,
@@ -29,7 +31,6 @@ def configure_logging():
         format="%(asctime)s | %(levelname)s | %(message)s",
         encoding="utf-8",
     )
-
 
 def print_table(records):
     headers = [
@@ -76,6 +77,7 @@ def print_table(records):
 
 def main():
     configure_logging()
+    logging.info("Uruchomiono UniProt Enzyme Explorer.")
 
     print("UniProt Enzyme Explorer")
     print("------------------------")
@@ -118,6 +120,25 @@ def main():
         except OSError as error:
             print(f"Nie udało się zapisać raportu XLSX: {error}")
             logging.error("Błąd zapisu XLSX: %s", error)
+
+        try:
+            chart_files = create_charts(
+                enzymes,
+                CHARTS_DIRECTORY,
+            )
+
+            print()
+            print("Wykresy zapisano:")
+
+            for chart_file in chart_files:
+                relative_path = chart_file.relative_to(PROJECT_ROOT)
+                print(f"- {relative_path}")
+
+            logging.info("Utworzono wykresy.")
+
+        except OSError as error:
+            print(f"Nie udało się utworzyć wykresów: {error}")
+            logging.error("Błąd tworzenia wykresów: %s", error)
 
     if errors:
         print()
