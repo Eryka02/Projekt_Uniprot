@@ -78,3 +78,36 @@
 2026-06-30 00:55:07,230 | INFO | Zapisano raport CSV: C:\Users\User\Desktop\enzyme_report.csv
 2026-06-30 00:55:17,848 | INFO | Utworzono wykresy z poziomu GUI.
 2026-06-30 00:56:24,337 | INFO | Zapisano raport XLSX: C:\Users\User\Desktop\enzyme_report.xlsx
+2026-07-06 22:50:13,895 | INFO | Uruchomiono interfejs graficzny.
+2026-07-06 22:51:24,503 | INFO | Wczytano 3 identyfikatorów z 1 plików.
+2026-07-06 22:54:40,571 | INFO | Wczytano 4 identyfikatorów z 1 plików.
+2026-07-06 22:54:48,930 | INFO | Pobieranie rekordu: P00330
+2026-07-06 22:54:52,066 | INFO | Pobrano rekord: P00330
+2026-07-06 22:54:52,066 | INFO | Pobieranie rekordu: P0A9Q7
+2026-07-06 22:54:54,934 | INFO | Pobrano rekord: P0A9Q7
+2026-07-06 22:54:54,935 | INFO | Pobieranie rekordu: P00439
+2026-07-06 22:54:58,281 | INFO | Pobrano rekord: P00439
+2026-07-06 22:54:58,282 | INFO | Pobieranie rekordu: P00734
+2026-07-06 22:55:02,465 | INFO | Pobrano rekord: P00734
+2026-07-06 22:55:39,075 | INFO | Utworzono wykresy z poziomu GUI.
+2026-07-06 23:04:59,710 | INFO | Uruchomiono interfejs graficzny.
+2026-07-06 23:05:15,858 | INFO | Pobieranie rekordu: P00918
+2026-07-06 23:05:17,484 | INFO | Zapisano surowe dane UniProt: C:\Users\User\PycharmProjects\PythonProject2\data\raw\P00918.json
+2026-07-06 23:05:17,495 | INFO | Pobrano rekord: P00918
+2026-07-06 23:05:17,495 | INFO | Pobieranie rekordu: P04040
+2026-07-06 23:05:18,728 | INFO | Zapisano surowe dane UniProt: C:\Users\User\PycharmProjects\PythonProject2\data\raw\P04040.json
+2026-07-06 23:05:18,732 | INFO | Pobrano rekord: P04040
+2026-07-06 23:05:18,732 | INFO | Pobieranie rekordu: P00338
+2026-07-06 23:05:19,902 | INFO | Zapisano surowe dane UniProt: C:\Users\User\PycharmProjects\PythonProject2\data\raw\P00338.json
+2026-07-06 23:05:19,905 | INFO | Pobrano rekord: P00338
+2026-07-06 23:57:11,621 | INFO | Uruchomiono interfejs graficzny.
+2026-07-06 23:57:19,019 | INFO | Pobieranie rekordu: P00918
+2026-07-06 23:57:20,434 | INFO | Zapisano surowe dane UniProt: C:\Users\User\PycharmProjects\PythonProject2\data\raw\P00918.json
+2026-07-06 23:57:20,439 | INFO | Pobrano rekord: P00918
+2026-07-06 23:57:20,439 | INFO | Pobieranie rekordu: P04040
+2026-07-06 23:57:21,501 | INFO | Zapisano surowe dane UniProt: C:\Users\User\PycharmProjects\PythonProject2\data\raw\P04040.json
+2026-07-06 23:57:21,504 | INFO | Pobrano rekord: P04040
+2026-07-06 23:57:21,504 | INFO | Pobieranie rekordu: P00338
+2026-07-06 23:57:22,569 | INFO | Zapisano surowe dane UniProt: C:\Users\User\PycharmProjects\PythonProject2\data\raw\P00338.json
+2026-07-06 23:57:22,572 | INFO | Pobrano rekord: P00338
+2026-07-06 23:57:22,575 | INFO | Zapisano dane przetworzone: C:\Users\User\PycharmProjects\PythonProject2\data\processed\enzyme_records.json

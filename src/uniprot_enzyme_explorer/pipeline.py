@@ -32,6 +32,26 @@ def load_uniprot_ids(file_path: Path) -> list[str]:
 
     return parse_uniprot_ids("".join(lines))
 
+def load_uniprot_ids_from_files(
+    file_paths: list[Path],
+) -> list[str]:
+    all_ids = []
+
+    for file_path in file_paths:
+        file_ids = load_uniprot_ids(file_path)
+
+        for uniprot_id in file_ids:
+            if uniprot_id not in all_ids:
+                all_ids.append(uniprot_id)
+
+    logging.info(
+        "Wczytano %s identyfikatorów z %s plików.",
+        len(all_ids),
+        len(file_paths),
+    )
+
+    return all_ids
+
 
 def harvest_enzymes(
     uniprot_ids: list[str],
