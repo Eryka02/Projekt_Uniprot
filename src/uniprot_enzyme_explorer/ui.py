@@ -349,7 +349,7 @@ class EnzymeExplorerApp:
             messagebox.showerror("Błąd zapisu", str(error))
 
     def show_selected_details(self):
-        selected_item = self.tree.selection()
+        selected_item = self.table.selection()
 
         if not selected_item:
             messagebox.showwarning(
@@ -358,7 +358,7 @@ class EnzymeExplorerApp:
             )
             return
 
-        row_index = self.tree.index(selected_item[0])
+        row_index = self.table.index(selected_item[0])
         enzyme = self.enzymes[row_index]
 
         details_window = tk.Toplevel(self.root)

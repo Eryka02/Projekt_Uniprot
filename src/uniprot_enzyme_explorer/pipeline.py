@@ -7,7 +7,7 @@ from src.uniprot_enzyme_explorer.uniprot_client import (
     UniProtError,
     fetch_enzyme,
 )
-
+from src.uniprot_enzyme_explorer.analysis import rank_enzymes
 
 def parse_uniprot_ids(text: str) -> list[str]:
     candidates = re.split(r"[\s,;]+", text.upper())
@@ -72,4 +72,11 @@ def harvest_enzymes(
             errors.append(message)
             logging.warning(message)
 
-    return enzymes, errors
+    ranked_enzymes = rank_enzymes(enzymes)
+
+    logging.info(
+        "Utworzono ranking enzymów dla %s rekordów.",
+        len(ranked_enzymes),
+    )
+
+    return ranked_enzymes, errors

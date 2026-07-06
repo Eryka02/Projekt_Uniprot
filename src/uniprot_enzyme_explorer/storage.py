@@ -26,6 +26,15 @@ def save_processed_records(records: list[EnzymeRecord]):
                 "molecular_weight": record.molecular_weight,
                 "ec_number": record.ec_number,
                 "sequence": record.sequence,
+                "reviewed_status": record.reviewed_status,
+                "quality_score": record.quality_score,
+                "hydrophobic_count": record.hydrophobic_count,
+                "hydrophobic_percent": record.hydrophobic_percent,
+                "cysteine_count": record.cysteine_count,
+                "cysteine_percent": record.cysteine_percent,
+                "most_common_amino_acid": record.most_common_amino_acid,
+                "sequence_length_category": record.sequence_length_category,
+                "interpretation": record.interpretation,
             }
         )
 

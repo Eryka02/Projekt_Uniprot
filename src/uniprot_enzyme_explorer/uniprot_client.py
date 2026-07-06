@@ -38,6 +38,15 @@ def fetch_enzyme(uniprot_id: str) -> EnzymeRecord:
         data = response.json()
         save_raw_uniprot_data(uniprot_id, data)
 
+        entry_type = data.get("entryType", "").lower()
+
+        if "unreviewed" in entry_type:
+            reviewed_status = "unreviewed"
+        elif "reviewed" in entry_type:
+            reviewed_status = "reviewed"
+        else:
+            reviewed_status = "Brak danych"
+
     except requests.Timeout as error:
         raise UniProtError("UniProt nie odpowiedział w wymaganym czasie.") from error
 
@@ -63,4 +72,5 @@ def fetch_enzyme(uniprot_id: str) -> EnzymeRecord:
         molecular_weight=sequence_data["molWeight"],
         ec_number=ec_number,
         sequence=sequence_data["value"],
+        reviewed_status=reviewed_status,
     )
