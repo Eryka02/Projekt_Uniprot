@@ -40,45 +40,85 @@ def _save_bar_chart(
     plt.close(figure)
 
 
-def create_charts(
-    records: list[EnzymeRecord],
-    output_directory: Path,
-) -> list[Path]:
-    output_directory.mkdir(parents=True, exist_ok=True)
+def create_charts(enzymes, output_dir: Path):
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-    labels = [record.uniprot_id for record in records]
+    chart_files = []
 
-    lengths = [
-        record.sequence_length
-        for record in records
+    enzyme_ids = [
+        enzyme.uniprot_id
+        for enzyme in enzymes
     ]
 
-    masses_kda = [
-        record.molecular_weight / 1000
-        for record in records
-    ]
+    def save_bar_chart(values, title, ylabel, filename, color):
+        chart_path = output_dir / filename
 
-    length_chart = output_directory / "sequence_lengths.png"
-    mass_chart = output_directory / "molecular_weights.png"
+        plt.figure(figsize=(9, 5))
+        plt.bar(enzyme_ids, values, color=color)
+        plt.title(title)
+        plt.xlabel("Identyfikator UniProt")
+        plt.ylabel(ylabel)
+        plt.tight_layout()
+        plt.savefig(chart_path)
+        plt.close()
 
-    _save_bar_chart(
-        labels=labels,
-        values=lengths,
-        title="Długość sekwencji enzymów",
-        y_label="Liczba aminokwasów",
-        color="#2F6690",
-        value_format="%.0f",
-        output_file=length_chart,
+        chart_files.append(chart_path)
+
+    save_bar_chart(
+        [enzyme.sequence_length for enzyme in enzymes],
+        "Porównanie długości sekwencji enzymów",
+        "Długość sekwencji",
+        "sequence_lengths.png",
+        "#4c78a8",
     )
 
-    _save_bar_chart(
-        labels=labels,
-        values=masses_kda,
-        title="Masa cząsteczkowa enzymów",
-        y_label="Masa [kDa]",
-        color="#3A7D44",
-        value_format="%.1f",
-        output_file=mass_chart,
+    save_bar_chart(
+        [enzyme.molecular_weight for enzyme in enzymes],
+        "Porównanie masy cząsteczkowej enzymów",
+        "Masa cząsteczkowa [Da]",
+        "molecular_weights.png",
+        "#f58518",
     )
 
-    return [length_chart, mass_chart]
+    save_bar_chart(
+        [enzyme.quality_score for enzyme in enzymes],
+        "Ranking jakości rekordów UniProt",
+        "Quality score",
+        "quality_scores.png",
+        "#54a24b",
+    )
+
+    save_bar_chart(
+        [enzyme.hydrophobic_percent for enzyme in enzymes],
+        "Udział aminokwasów hydrofobowych",
+        "Aminokwasy hydrofobowe [%]",
+        "hydrophobic_percent.png",
+        "#b279a2",
+    )
+
+    reviewed_count = sum(
+        1 for enzyme in enzymes
+        if enzyme.reviewed_status == "reviewed"
+    )
+    unreviewed_count = sum(
+        1 for enzyme in enzymes
+        if enzyme.reviewed_status == "unreviewed"
+    )
+
+    status_chart_path = output_dir / "reviewed_status.png"
+
+    plt.figure(figsize=(6, 5))
+    plt.bar(
+        ["reviewed", "unreviewed"],
+        [reviewed_count, unreviewed_count],
+        color=["#59a14f", "#e15759"],
+    )
+    plt.title("Liczba rekordów reviewed i unreviewed")
+    plt.ylabel("Liczba rekordów")
+    plt.tight_layout()
+    plt.savefig(status_chart_path)
+    plt.close()
+
+    chart_files.append(status_chart_path)
+
+    return chart_files

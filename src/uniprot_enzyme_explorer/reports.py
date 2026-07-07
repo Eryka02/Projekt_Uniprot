@@ -17,12 +17,19 @@ def export_to_csv(
         "uniprot_id",
         "protein_name",
         "organism",
+        "ec_number",
         "sequence_length",
         "molecular_weight_da",
-        "ec_number",
+        "reviewed_status",
+        "quality_score",
+        "hydrophobic_percent",
+        "cysteine_count",
+        "cysteine_percent",
+        "most_common_amino_acid",
+        "sequence_length_category",
+        "interpretation",
         "sequence",
     ]
-
     with output_file.open(
         mode="w",
         encoding="utf-8-sig",
@@ -37,15 +44,25 @@ def export_to_csv(
         writer.writeheader()
 
         for record in records:
-            writer.writerow({
-                "uniprot_id": record.uniprot_id,
-                "protein_name": record.protein_name,
-                "organism": record.organism,
-                "sequence_length": record.sequence_length,
-                "molecular_weight_da": record.molecular_weight,
-                "ec_number": record.ec_number,
-                "sequence": record.sequence,
-            })
+            writer.writerow(
+                {
+                    "uniprot_id": record.uniprot_id,
+                    "protein_name": record.protein_name,
+                    "organism": record.organism,
+                    "ec_number": record.ec_number,
+                    "sequence_length": record.sequence_length,
+                    "molecular_weight_da": record.molecular_weight,
+                    "reviewed_status": record.reviewed_status,
+                    "quality_score": record.quality_score,
+                    "hydrophobic_percent": record.hydrophobic_percent,
+                    "cysteine_count": record.cysteine_count,
+                    "cysteine_percent": record.cysteine_percent,
+                    "most_common_amino_acid": record.most_common_amino_acid,
+                    "sequence_length_category": record.sequence_length_category,
+                    "interpretation": record.interpretation,
+                    "sequence": record.sequence,
+                }
+            )
 
     return output_file
 
@@ -61,27 +78,45 @@ def export_to_xlsx(
     worksheet.title = "Enzymy"
 
     headers = [
-        "ID UniProt",
+        "UniProt ID",
         "Nazwa białka",
         "Organizm",
-        "Długość sekwencji",
-        "Masa [Da]",
         "Numer EC",
-        "Sekwencja aminokwasowa",
+        "Długość sekwencji",
+        "Masa cząsteczkowa",
+        "Status rekordu",
+        "Quality score",
+        "Aminokwasy hydrofobowe [%]",
+        "Liczba cystein",
+        "Cysteiny [%]",
+        "Najczęstszy aminokwas",
+        "Kategoria długości",
+        "Interpretacja",
+        "Sekwencja",
     ]
 
     worksheet.append(headers)
 
     for record in records:
-        worksheet.append([
-            record.uniprot_id,
-            record.protein_name,
-            record.organism,
-            record.sequence_length,
-            record.molecular_weight,
-            record.ec_number,
-            record.sequence,
-        ])
+        worksheet.append(
+            [
+                record.uniprot_id,
+                record.protein_name,
+                record.organism,
+                record.ec_number,
+                record.sequence_length,
+                record.molecular_weight,
+                record.reviewed_status,
+                record.quality_score,
+                record.hydrophobic_percent,
+                record.cysteine_count,
+                record.cysteine_percent,
+                record.most_common_amino_acid,
+                record.sequence_length_category,
+                record.interpretation,
+                record.sequence,
+            ]
+        )
 
     header_fill = PatternFill(
         fill_type="solid",
