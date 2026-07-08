@@ -525,3 +525,75 @@ ValueError: too many values to unpack (expected 2, got 3)
 2026-07-07 20:08:02,236 | INFO | Pobrano rekord: P00338
 2026-07-07 20:08:02,237 | INFO | Utworzono ranking enzymów dla 3 rekordów.
 2026-07-07 20:08:02,241 | INFO | Zapisano dane przetworzone: C:\Users\User\PycharmProjects\PythonProject2\data\processed\enzyme_records.json
+2026-07-08 19:24:51,295 | INFO | Uruchomiono interfejs graficzny.
+2026-07-08 20:47:58,567 | INFO | Uruchomiono interfejs graficzny.
+2026-07-08 20:48:03,041 | INFO | Pobieranie rekordu: P00918
+2026-07-08 20:48:06,155 | INFO | Zapisano surowe dane UniProt: C:\Users\User\PycharmProjects\PythonProject2\data\raw\P00918.json
+2026-07-08 20:48:06,162 | INFO | Pobrano rekord: P00918
+2026-07-08 20:48:06,162 | INFO | Pobieranie rekordu: P04040
+2026-07-08 20:48:08,971 | INFO | Zapisano surowe dane UniProt: C:\Users\User\PycharmProjects\PythonProject2\data\raw\P04040.json
+2026-07-08 20:48:08,975 | INFO | Pobrano rekord: P04040
+2026-07-08 20:48:08,975 | INFO | Pobieranie rekordu: P00338
+2026-07-08 20:48:12,912 | INFO | Zapisano surowe dane UniProt: C:\Users\User\PycharmProjects\PythonProject2\data\raw\P00338.json
+2026-07-08 20:48:12,915 | INFO | Pobrano rekord: P00338
+2026-07-08 20:48:12,916 | INFO | Utworzono ranking enzymów dla 3 rekordów.
+2026-07-08 20:48:12,923 | INFO | Zapisano dane przetworzone: C:\Users\User\PycharmProjects\PythonProject2\data\processed\enzyme_records.json
+2026-07-08 20:49:25,931 | INFO | Zapisano raport CSV: C:\Users\User\Desktop\mmmmmmmm\enzyme_report.csv
+2026-07-08 23:11:53,383 | INFO | Uruchomiono interfejs graficzny.
+2026-07-08 23:12:08,939 | INFO | Rozpoczęto analizę z poziomu GUI.
+2026-07-08 23:12:08,944 | INFO | Wczytano 3 identyfikatorów.
+2026-07-08 23:12:08,949 | INFO | Wykryto 0 powtórzone identyfikatory; usunięto 0 powtórzeń.
+2026-07-08 23:12:08,950 | INFO | Pobieranie rekordu: P00918
+2026-07-08 23:12:10,749 | INFO | Zapisano surowe dane UniProt: C:\Users\User\PycharmProjects\PythonProject2\data\raw\P00918.json
+2026-07-08 23:12:10,755 | INFO | Pobrano rekord: P00918
+2026-07-08 23:12:10,755 | INFO | Pobieranie rekordu: P04040
+2026-07-08 23:12:12,170 | INFO | Zapisano surowe dane UniProt: C:\Users\User\PycharmProjects\PythonProject2\data\raw\P04040.json
+2026-07-08 23:12:12,174 | INFO | Pobrano rekord: P04040
+2026-07-08 23:12:12,175 | INFO | Pobieranie rekordu: P00338
+2026-07-08 23:12:13,568 | INFO | Zapisano surowe dane UniProt: C:\Users\User\PycharmProjects\PythonProject2\data\raw\P00338.json
+2026-07-08 23:12:13,572 | INFO | Pobrano rekord: P00338
+2026-07-08 23:12:13,575 | INFO | Zapisano dane przetworzone: C:\Users\User\PycharmProjects\PythonProject2\data\processed\enzyme_records.json
+2026-07-08 23:12:13,575 | INFO | Pobrano 3 rekordów; wykryto 0 grup identycznych sekwencji.
+2026-07-08 23:12:13,575 | INFO | Przygotowano 3 rekordów końcowych przy ustawieniach domyślnych.
+2026-07-08 23:12:13,579 | INFO | Podsumowanie GUI: 3 ID, 0 powtórzone ID, 3 rekordów końcowych.
+2026-07-08 23:21:55,681 | INFO | Uruchomiono interfejs graficzny.
+2026-07-08 23:22:07,630 | INFO | Rozpoczęto analizę z poziomu GUI.
+2026-07-08 23:22:07,632 | INFO | Wczytano 3 identyfikatorów.
+2026-07-08 23:22:07,632 | INFO | Wykryto 0 powtórzone identyfikatory; usunięto 0 powtórzeń.
+2026-07-08 23:22:07,632 | INFO | Pobieranie rekordu: P00918
+2026-07-08 23:22:09,680 | INFO | Zapisano surowe dane UniProt: C:\Users\User\PycharmProjects\PythonProject2\data\raw\P00918.json
+2026-07-08 23:22:09,687 | INFO | Pobrano rekord: P00918
+2026-07-08 23:22:09,688 | INFO | Pobieranie rekordu: P04040
+2026-07-08 23:22:11,134 | INFO | Zapisano surowe dane UniProt: C:\Users\User\PycharmProjects\PythonProject2\data\raw\P04040.json
+2026-07-08 23:22:11,137 | INFO | Pobrano rekord: P04040
+2026-07-08 23:22:11,137 | INFO | Pobieranie rekordu: P00338
+2026-07-08 23:22:12,592 | INFO | Zapisano surowe dane UniProt: C:\Users\User\PycharmProjects\PythonProject2\data\raw\P00338.json
+2026-07-08 23:22:12,596 | INFO | Pobrano rekord: P00338
+2026-07-08 23:22:12,599 | INFO | Zapisano dane przetworzone: C:\Users\User\PycharmProjects\PythonProject2\data\processed\enzyme_records.json
+2026-07-08 23:22:12,599 | INFO | Pobrano 3 rekordów; wykryto 0 grup identycznych sekwencji.
+2026-07-08 23:22:12,600 | INFO | Przygotowano 3 rekordów końcowych przy ustawieniach domyślnych.
+2026-07-08 23:22:12,602 | INFO | Podsumowanie GUI: 3 ID, 0 powtórzone ID, 3 rekordów końcowych.
+2026-07-08 23:39:51,769 | INFO | Uruchomiono interfejs graficzny.
+2026-07-08 23:40:19,796 | INFO | Rozpoczęto analizę z poziomu GUI.
+2026-07-08 23:40:19,800 | INFO | Wczytano 3 identyfikatorów.
+2026-07-08 23:40:19,801 | INFO | Wykryto 0 powtórzone identyfikatory; usunięto 0 powtórzeń.
+2026-07-08 23:40:19,801 | INFO | Pobieranie rekordu: P00918
+2026-07-08 23:40:21,597 | INFO | Zapisano surowe dane UniProt: C:\Users\User\PycharmProjects\PythonProject2\data\raw\P00918.json
+2026-07-08 23:40:21,602 | INFO | Pobrano rekord: P00918
+2026-07-08 23:40:21,603 | INFO | Pobieranie rekordu: P04040
+2026-07-08 23:40:23,108 | INFO | Zapisano surowe dane UniProt: C:\Users\User\PycharmProjects\PythonProject2\data\raw\P04040.json
+2026-07-08 23:40:23,112 | INFO | Pobrano rekord: P04040
+2026-07-08 23:40:23,112 | INFO | Pobieranie rekordu: P00338
+2026-07-09 00:02:12,427 | INFO | Uruchomiono interfejs graficzny.
+2026-07-09 00:02:20,303 | INFO | Wykryto 0 powtórzone identyfikatory; pobieranie 3 unikalnych ID.
+2026-07-09 00:02:20,303 | INFO | Pobieranie rekordu: P00918
+2026-07-09 00:02:22,029 | INFO | Zapisano surowe dane UniProt: C:\Users\User\PycharmProjects\PythonProject2\data\raw\P00918.json
+2026-07-09 00:02:22,034 | INFO | Pobrano rekord: P00918
+2026-07-09 00:02:22,034 | INFO | Pobieranie rekordu: P04040
+2026-07-09 00:02:23,269 | INFO | Zapisano surowe dane UniProt: C:\Users\User\PycharmProjects\PythonProject2\data\raw\P04040.json
+2026-07-09 00:02:23,272 | INFO | Pobrano rekord: P04040
+2026-07-09 00:02:23,272 | INFO | Pobieranie rekordu: P00338
+2026-07-09 00:02:24,534 | INFO | Zapisano surowe dane UniProt: C:\Users\User\PycharmProjects\PythonProject2\data\raw\P00338.json
+2026-07-09 00:02:24,538 | INFO | Pobrano rekord: P00338
+2026-07-09 00:02:24,538 | INFO | Przeanalizowano 3 rekordów; znaleziono 0 grup duplikatów.
+2026-07-09 00:02:24,542 | INFO | Zapisano dane przetworzone: C:\Users\User\PycharmProjects\PythonProject2\data\processed\enzyme_records.json

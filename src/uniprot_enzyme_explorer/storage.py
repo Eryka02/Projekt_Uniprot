@@ -7,6 +7,9 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
 from src.uniprot_enzyme_explorer.models import EnzymeRecord
+from src.uniprot_enzyme_explorer.sequence_qc import (
+    prepare_non_redundant_set,
+)
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -32,7 +35,6 @@ def save_processed_records(records: list[EnzymeRecord]):
                 "ec_number": record.ec_number,
                 "sequence": record.sequence,
                 "reviewed_status": record.reviewed_status,
-                "quality_score": record.quality_score,
                 "hydrophobic_count": record.hydrophobic_count,
                 "hydrophobic_percent": record.hydrophobic_percent,
                 "cysteine_count": record.cysteine_count,
@@ -40,6 +42,10 @@ def save_processed_records(records: list[EnzymeRecord]):
                 "most_common_amino_acid": record.most_common_amino_acid,
                 "sequence_length_category": record.sequence_length_category,
                 "interpretation": record.interpretation,
+                "qc_status": record.qc_status,
+                "duplicate_group": record.duplicate_group,
+                "is_representative": record.is_representative,
+                "representative_id": record.representative_id,
             }
         )
 
@@ -47,28 +53,6 @@ def save_processed_records(records: list[EnzymeRecord]):
         json.dump(processed_data, file, ensure_ascii=False, indent=2)
 
     logging.info("Zapisano dane przetworzone: %s", output_file)
-
-
-def export_best_candidate_to_fasta(record: EnzymeRecord, output_dir=None) -> Path:
-    fasta_dir = Path(output_dir) if output_dir else FASTA_OUTPUT_DIR
-    fasta_dir.mkdir(parents=True, exist_ok=True)
-
-    output_file = fasta_dir / f"{record.uniprot_id}_best_candidate.fasta"
-
-    fasta_record = SeqRecord(
-        Seq(record.sequence),
-        id=record.uniprot_id,
-        description=(
-            f"{record.protein_name} | {record.organism} | "
-            f"EC: {record.ec_number} | quality_score: {record.quality_score}/10"
-        ),
-    )
-
-    SeqIO.write(fasta_record, output_file, "fasta")
-
-    logging.info("Zapisano najlepszego kandydata FASTA: %s", output_file)
-
-    return output_file
 
 
 def export_all_enzymes_to_fasta(records: list[EnzymeRecord], output_dir=None) -> Path:
@@ -86,8 +70,7 @@ def export_all_enzymes_to_fasta(records: list[EnzymeRecord], output_dir=None) ->
                 id=record.uniprot_id,
                 description=(
                     f"{record.protein_name} | {record.organism} | "
-                    f"EC: {record.ec_number} | quality_score: "
-                    f"{record.quality_score}/10"
+                    f"EC: {record.ec_number} | {record.reviewed_status}"
                 ),
             )
         )
@@ -96,4 +79,34 @@ def export_all_enzymes_to_fasta(records: list[EnzymeRecord], output_dir=None) ->
 
     logging.info("Zapisano wszystkie enzymy FASTA: %s", output_file)
 
+    return output_file
+
+
+def export_non_redundant_fasta(
+    records: list[EnzymeRecord],
+    output_dir=None,
+) -> Path:
+    """Zapisz po jednej reprezentatywnej sekwencji z każdej grupy."""
+    fasta_dir = Path(output_dir) if output_dir else FASTA_OUTPUT_DIR
+    fasta_dir.mkdir(parents=True, exist_ok=True)
+    output_file = fasta_dir / "non_redundant_sequences.fasta"
+    selected_records = prepare_non_redundant_set(records)
+
+    fasta_records = [
+        SeqRecord(
+            Seq(record.sequence),
+            id=record.uniprot_id,
+            description=(
+                f"{record.protein_name} | {record.organism} | "
+                f"EC: {record.ec_number} | {record.reviewed_status}"
+            ),
+        )
+        for record in selected_records
+    ]
+    SeqIO.write(fasta_records, output_file, "fasta")
+    logging.info(
+        "Zapisano %s niedublujących się sekwencji FASTA: %s",
+        len(fasta_records),
+        output_file,
+    )
     return output_file

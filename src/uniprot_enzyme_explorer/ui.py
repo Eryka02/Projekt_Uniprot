@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+
 import logging
 import tempfile
 import threading
@@ -17,9 +17,13 @@ from src.uniprot_enzyme_explorer.reports import (
     export_to_csv,
     export_to_xlsx,
 )
+from src.uniprot_enzyme_explorer.sequence_qc import (
+    find_duplicate_ids,
+    prepare_non_redundant_set,
+)
 from src.uniprot_enzyme_explorer.storage import (
     export_all_enzymes_to_fasta,
-    export_best_candidate_to_fasta,
+    export_non_redundant_fasta,
     save_processed_records,
 )
 
@@ -68,6 +72,12 @@ class EnzymeExplorerApp:
         style.configure("Shell.TFrame", background="#f4f7fb")
         style.configure("Main.TFrame", background="#f4f7fb")
         style.configure("Sidebar.TFrame", background="#223044")
+        style.configure(
+            "SidebarOptions.TFrame",
+            background="#2a394f",
+            relief="solid",
+            borderwidth=1,
+        )
         style.configure("Card.TFrame", background="#ffffff", relief="solid", borderwidth=1)
         style.configure("Candidate.TFrame", background="#eefaf5", relief="solid", borderwidth=1)
         style.configure("TableFrame.TFrame", background="#ffffff", relief="solid", borderwidth=1)
@@ -164,6 +174,21 @@ class EnzymeExplorerApp:
             background=[("active", "#3b506d"), ("disabled", "#2a394f")],
             foreground=[("disabled", "#7f8fa3")],
         )
+        style.configure(
+            "Sidebar.TCheckbutton",
+            background="#2a394f",
+            foreground="#ffffff",
+            font=("Segoe UI", 9),
+            padding=(2, 5),
+        )
+        style.map(
+            "Sidebar.TCheckbutton",
+            background=[
+                ("active", "#2a394f"),
+                ("disabled", "#2a394f"),
+            ],
+            foreground=[("disabled", "#7f8fa3")],
+        )
         style.configure("TButton", font=("Segoe UI", 9), padding=(12, 8))
         style.configure("TEntry", padding=(8, 8))
 
@@ -194,25 +219,19 @@ class EnzymeExplorerApp:
         sidebar.grid(row=0, column=0, sticky="nsew")
         sidebar.grid_propagate(False)
         sidebar.columnconfigure(0, weight=1)
-        sidebar.rowconfigure(10, weight=1)
+        sidebar.rowconfigure(9, weight=1)
 
-        ttk.Label(
-            sidebar,
-            text="UniProt\nEnzyme Explorer",
-            style="SidebarTitle.TLabel",
-        ).grid(row=0, column=0, sticky="w", pady=(0, 6))
-
-        ttk.Label(
-            sidebar,
-            text="Panel analizy enzymów",
-            style="SidebarMuted.TLabel",
-        ).grid(row=1, column=0, sticky="w", pady=(0, 24))
+        self._create_feather_mark(sidebar).grid(
+            row=0,
+            column=0,
+            pady=(0, 24),
+        )
 
         ttk.Label(
             sidebar,
             text="AKCJE",
             style="SidebarSection.TLabel",
-        ).grid(row=2, column=0, sticky="w", pady=(0, 8))
+        ).grid(row=1, column=0, sticky="w", pady=(0, 8))
 
         self.details_button = ttk.Button(
             sidebar,
@@ -221,25 +240,67 @@ class EnzymeExplorerApp:
             state="disabled",
             style="Sidebar.TButton",
         )
-        self.details_button.grid(row=3, column=0, sticky="ew", pady=(0, 8))
+        self.details_button.grid(row=2, column=0, sticky="ew", pady=(0, 8))
 
-        self.csv_button = ttk.Button(
+        self.save_options_visible = False
+        self.save_csv_option = tk.BooleanVar(value=False)
+        self.save_xlsx_option = tk.BooleanVar(value=False)
+        self.save_fasta_option = tk.BooleanVar(value=False)
+        self.save_all_option = tk.BooleanVar(value=True)
+
+        self.save_results_button = ttk.Button(
             sidebar,
-            text="Zapisz CSV",
-            command=self.save_csv,
+            text="Zapisz wyniki ▾",
+            command=self._toggle_save_options,
             state="disabled",
             style="Sidebar.TButton",
         )
-        self.csv_button.grid(row=4, column=0, sticky="ew", pady=(0, 8))
+        self.save_results_button.grid(row=3, column=0, sticky="ew", pady=(0, 8))
 
-        self.xlsx_button = ttk.Button(
+        self.save_options_frame = ttk.Frame(
             sidebar,
-            text="Zapisz XLSX",
-            command=self.save_xlsx,
-            state="disabled",
-            style="Sidebar.TButton",
+            style="SidebarOptions.TFrame",
+            padding=(12, 10),
         )
-        self.xlsx_button.grid(row=5, column=0, sticky="ew", pady=(0, 8))
+        self.save_options_frame.grid(row=4, column=0, sticky="ew", pady=(0, 8))
+        self.save_options_frame.columnconfigure(0, weight=1)
+
+        self.save_option_controls = [
+            ttk.Checkbutton(
+                self.save_options_frame,
+                text="CSV",
+                variable=self.save_csv_option,
+                command=self._select_single_export,
+                style="Sidebar.TCheckbutton",
+            ),
+            ttk.Checkbutton(
+                self.save_options_frame,
+                text="XLSX",
+                variable=self.save_xlsx_option,
+                command=self._select_single_export,
+                style="Sidebar.TCheckbutton",
+            ),
+            ttk.Checkbutton(
+                self.save_options_frame,
+                text="FASTA",
+                variable=self.save_fasta_option,
+                command=self._select_single_export,
+                style="Sidebar.TCheckbutton",
+            ),
+            ttk.Checkbutton(
+                self.save_options_frame,
+                text="Wszystko",
+                variable=self.save_all_option,
+                command=self._select_all_exports,
+                style="Sidebar.TCheckbutton",
+            ),
+        ]
+
+        for row, control in enumerate(self.save_option_controls):
+            pady = (0, 8) if row == 2 else (0, 0)
+            control.grid(row=row, column=0, sticky="w", pady=pady)
+
+        self.save_options_frame.grid_remove()
 
         self.charts_button = ttk.Button(
             sidebar,
@@ -248,23 +309,123 @@ class EnzymeExplorerApp:
             state="disabled",
             style="Sidebar.TButton",
         )
-        self.charts_button.grid(row=6, column=0, sticky="ew", pady=(0, 8))
+        self.charts_button.grid(row=5, column=0, sticky="ew", pady=(0, 8))
 
-        self.fasta_button = ttk.Button(
-            sidebar,
-            text="Zapisz FASTA",
-            command=self.save_fasta,
-            state="disabled",
-            style="Sidebar.TButton",
+    def _create_feather_mark(self, parent: ttk.Frame):
+        mark = tk.Canvas(
+            parent,
+            width=72,
+            height=72,
+            bg="#223044",
+            highlightthickness=0,
+            bd=0,
         )
-        self.fasta_button.grid(row=7, column=0, sticky="ew", pady=(0, 8))
+        mark.create_line(
+            47,
+            8,
+            22,
+            64,
+            fill="#ffffff",
+            width=4,
+            capstyle=tk.ROUND,
+        )
+        mark.create_line(
+            47,
+            8,
+            33,
+            14,
+            22,
+            32,
+            16,
+            56,
+            fill="#ffffff",
+            width=4,
+            smooth=True,
+            capstyle=tk.ROUND,
+            joinstyle=tk.ROUND,
+        )
+        mark.create_line(
+            47,
+            8,
+            43,
+            28,
+            33,
+            48,
+            16,
+            56,
+            fill="#ffffff",
+            width=4,
+            smooth=True,
+            capstyle=tk.ROUND,
+            joinstyle=tk.ROUND,
+        )
+        mark.create_line(34, 22, 17, 27, fill="#b8c5d7", width=2, capstyle=tk.ROUND)
+        mark.create_line(29, 35, 12, 40, fill="#b8c5d7", width=2, capstyle=tk.ROUND)
+        mark.create_line(39, 16, 24, 14, fill="#b8c5d7", width=2, capstyle=tk.ROUND)
+        return mark
 
-        ttk.Label(
-            sidebar,
-            text="Najpierw pobierz dane, potem wybierz rekord z tabeli.",
-            style="SidebarMuted.TLabel",
-            wraplength=175,
-        ).grid(row=11, column=0, sticky="sw", pady=(20, 0))
+    def _toggle_save_options(self):
+        if not self.enzymes:
+            return
+
+        if self.save_options_visible:
+            self._run_selected_exports()
+            return
+
+        self.save_options_visible = True
+        self.save_options_frame.grid()
+        self.save_results_button.configure(text="Zapisz wyniki ▴")
+
+    def _select_single_export(self):
+        if any(
+            option.get()
+            for option in (
+                self.save_csv_option,
+                self.save_xlsx_option,
+                self.save_fasta_option,
+            )
+        ):
+            self.save_all_option.set(False)
+
+    def _select_all_exports(self):
+        if self.save_all_option.get():
+            self.save_csv_option.set(False)
+            self.save_xlsx_option.set(False)
+            self.save_fasta_option.set(False)
+
+    def _run_selected_exports(self):
+        export_csv = self.save_all_option.get() or self.save_csv_option.get()
+        export_xlsx = self.save_all_option.get() or self.save_xlsx_option.get()
+        export_fasta = self.save_all_option.get() or self.save_fasta_option.get()
+
+        if not any((export_csv, export_xlsx, export_fasta)):
+            messagebox.showwarning(
+                "Brak wyboru",
+                "Zaznacz przynajmniej jeden format zapisu.",
+            )
+            return
+
+        self.save_options_visible = False
+        self.save_options_frame.grid_remove()
+        self.save_results_button.configure(text="Zapisz wyniki ▾")
+
+        if export_csv:
+            self.save_csv()
+        if export_xlsx:
+            self.save_xlsx()
+        if export_fasta:
+            self.save_fasta()
+
+    def _set_save_options_state(self, state: str):
+        self.save_results_button.configure(state=state)
+
+        for control in self.save_option_controls:
+            control.configure(state=state)
+
+        if state == "disabled":
+            self.save_options_visible = False
+            self.save_options_frame.grid_remove()
+            self.save_results_button.configure(text="Zapisz wyniki ▾")
 
     def _build_main_panel(self, shell: ttk.Frame):
         main_frame = ttk.Frame(shell, style="Main.TFrame", padding=18)
@@ -282,12 +443,6 @@ class EnzymeExplorerApp:
             style="Title.TLabel",
         ).grid(row=0, column=0, sticky="w")
 
-        ttk.Label(
-            header,
-            text="Pobieranie rekordów, ocena jakości i eksport wyników.",
-            style="Subtitle.TLabel",
-        ).grid(row=1, column=0, sticky="w", pady=(4, 0))
-
         try:
             initial_ids = load_uniprot_ids(self.input_file)
         except OSError:
@@ -296,15 +451,10 @@ class EnzymeExplorerApp:
         self.ids_text = tk.StringVar(value=", ".join(initial_ids))
         self._build_input_area(main_frame)
         self._build_summary_cards(main_frame)
-        self._build_candidate_card(main_frame)
+        self._build_qc_card(main_frame)
         self._build_table(main_frame)
 
-        self.status_text = tk.StringVar(value="Gotowe do pobrania danych.")
-        ttk.Label(
-            main_frame,
-            textvariable=self.status_text,
-            style="Status.TLabel",
-        ).grid(row=5, column=0, sticky="w", pady=(12, 0))
+        self.status_text = tk.StringVar(value="")
 
     def _build_input_area(self, main_frame: ttk.Frame):
         input_frame = ttk.Frame(main_frame, style="Main.TFrame")
@@ -350,7 +500,7 @@ class EnzymeExplorerApp:
     def _build_summary_cards(self, main_frame: ttk.Frame):
         self.records_count_text = tk.StringVar(value="0")
         self.reviewed_count_text = tk.StringVar(value="0")
-        self.average_score_text = tk.StringVar(value="-")
+        self.unique_sequences_text = tk.StringVar(value="0")
         self.missing_count_text = tk.StringVar(value="0")
 
         cards_frame = ttk.Frame(main_frame, style="Main.TFrame")
@@ -374,8 +524,8 @@ class EnzymeExplorerApp:
         self._create_kpi_card(
             cards_frame,
             column=2,
-            value=self.average_score_text,
-            label="średnia ocena",
+            value=self.unique_sequences_text,
+            label="unikalne sekwencje",
         )
         self._create_kpi_card(
             cards_frame,
@@ -407,25 +557,27 @@ class EnzymeExplorerApp:
             style="KpiLabel.TLabel",
         ).grid(row=1, column=0, sticky="w", pady=(2, 0))
 
-    def _build_candidate_card(self, main_frame: ttk.Frame):
+    def _build_qc_card(self, main_frame: ttk.Frame):
         candidate = ttk.Frame(main_frame, style="Candidate.TFrame", padding=(14, 12))
         candidate.grid(row=3, column=0, sticky="ew", pady=(0, 14))
         candidate.columnconfigure(0, weight=1)
 
-        self.best_candidate_title = tk.StringVar(value="Najlepszy kandydat: brak danych")
-        self.best_candidate_text = tk.StringVar(
-            value="Po pobraniu danych tutaj pojawi się najwyżej oceniony rekord."
+        self.qc_summary_title = tk.StringVar(
+            value="Kontrola duplikatów: brak danych"
+        )
+        self.qc_summary_text = tk.StringVar(
+            value="Po pobraniu danych program porówna pełne sekwencje."
         )
 
         ttk.Label(
             candidate,
-            textvariable=self.best_candidate_title,
+            textvariable=self.qc_summary_title,
             style="CandidateTitle.TLabel",
         ).grid(row=0, column=0, sticky="w")
 
         ttk.Label(
             candidate,
-            textvariable=self.best_candidate_text,
+            textvariable=self.qc_summary_text,
             style="CandidateText.TLabel",
             wraplength=820,
         ).grid(row=1, column=0, sticky="ew", pady=(4, 0))
@@ -444,7 +596,7 @@ class EnzymeExplorerApp:
             "length",
             "mass",
             "status",
-            "score",
+            "qc",
         )
 
         self.table = ttk.Treeview(
@@ -461,7 +613,7 @@ class EnzymeExplorerApp:
             "length": ("Długość", 85),
             "mass": ("Masa [Da]", 100),
             "status": ("Status", 95),
-            "score": ("Quality", 80),
+            "qc": ("Status QC", 100),
         }
 
         for column, (heading, width) in settings.items():
@@ -492,25 +644,22 @@ class EnzymeExplorerApp:
         horizontal_scrollbar.grid(row=1, column=0, sticky="ew")
 
     def _set_report_buttons(self, state: str):
-        self.csv_button.configure(state=state)
-        self.xlsx_button.configure(state=state)
+        self._set_save_options_state(state)
         self.charts_button.configure(state=state)
 
     def _set_all_result_buttons(self, state: str):
         self.details_button.configure(state=state)
-        self.csv_button.configure(state=state)
-        self.xlsx_button.configure(state=state)
+        self._set_save_options_state(state)
         self.charts_button.configure(state=state)
-        self.fasta_button.configure(state=state)
 
     def _reset_summary(self):
         self.records_count_text.set("0")
         self.reviewed_count_text.set("0")
-        self.average_score_text.set("-")
+        self.unique_sequences_text.set("0")
         self.missing_count_text.set("0")
-        self.best_candidate_title.set("Najlepszy kandydat: brak danych")
-        self.best_candidate_text.set(
-            "Po pobraniu danych tutaj pojawi się najwyżej oceniony rekord."
+        self.qc_summary_title.set("Kontrola duplikatów: brak danych")
+        self.qc_summary_text.set(
+            "Po pobraniu danych program porówna pełne sekwencje."
         )
 
     def _update_summary(self, enzymes, total: int):
@@ -521,21 +670,11 @@ class EnzymeExplorerApp:
             if str(enzyme.reviewed_status).strip().lower() == "reviewed"
         )
         missing_count = max(total - records_count, 0)
-
-        scores = []
-        for enzyme in enzymes:
-            try:
-                scores.append(float(enzyme.quality_score))
-            except (TypeError, ValueError):
-                continue
-
-        average_score = "-"
-        if scores:
-            average_score = f"{sum(scores) / len(scores):.1f}"
+        unique_sequences = len(prepare_non_redundant_set(enzymes))
 
         self.records_count_text.set(str(records_count))
         self.reviewed_count_text.set(str(reviewed_count))
-        self.average_score_text.set(average_score)
+        self.unique_sequences_text.set(str(unique_sequences))
         self.missing_count_text.set(str(missing_count))
 
     def select_input_files(self):
@@ -591,13 +730,26 @@ class EnzymeExplorerApp:
             )
             return
 
+        duplicate_ids = find_duplicate_ids(uniprot_ids)
+        self.input_duplicate_count = (
+            len(uniprot_ids) - len(set(uniprot_ids))
+        )
+        self.unique_input_count = len(set(uniprot_ids))
+        if duplicate_ids:
+            self.status_text.set(
+                f"Wykryto {len(duplicate_ids)} powtórzone ID. "
+                "Każdy rekord zostanie pobrany tylko raz."
+            )
+
         self.enzymes = []
         self._reset_summary()
         self._set_all_result_buttons("disabled")
         self.download_button.configure(state="disabled")
         self.files_button.configure(state="disabled")
         self.ids_entry.configure(state="disabled")
-        self.status_text.set(f"Pobieranie rekordów: {len(uniprot_ids)}...")
+        self.status_text.set(
+            f"Pobieranie rekordów: {self.unique_input_count}..."
+        )
 
         for item in self.table.get_children():
             self.table.delete(item)
@@ -616,7 +768,7 @@ class EnzymeExplorerApp:
                 self._display_results,
                 enzymes,
                 errors,
-                len(uniprot_ids),
+                len(set(uniprot_ids)),
             )
         except Exception as error:
             logging.exception("Błąd podczas pracy GUI.")
@@ -628,15 +780,36 @@ class EnzymeExplorerApp:
         self._update_summary(enzymes, total)
 
         if enzymes:
-            best_enzyme = enzymes[0]
-            self.best_candidate_title.set(
-                f"Najlepszy kandydat: {best_enzyme.uniprot_id} | "
-                f"Ocena: {best_enzyme.quality_score}/10"
+            duplicate_records = sum(
+                not enzyme.is_representative
+                for enzyme in enzymes
             )
-            self.best_candidate_text.set(best_enzyme.interpretation)
+            duplicate_groups = {
+                enzyme.duplicate_group
+                for enzyme in enzymes
+                if enzyme.duplicate_group
+            }
+            input_duplicates = getattr(
+                self,
+                "input_duplicate_count",
+                0,
+            )
+            self.qc_summary_title.set(
+                f"Kontrola duplikatów: {len(duplicate_groups)} grup"
+            )
+            self.qc_summary_text.set(
+                f"Powtórzenia ID usunięte przed pobraniem: "
+                f"{input_duplicates}. Identyczne sekwencje: "
+                f"{duplicate_records}. Sekwencje końcowe: "
+                f"{len(prepare_non_redundant_set(enzymes))}."
+            )
         else:
-            self.best_candidate_title.set("Najlepszy kandydat: brak danych")
-            self.best_candidate_text.set("Nie znaleziono poprawnych rekordów.")
+            self.qc_summary_title.set(
+                "Kontrola duplikatów: brak danych"
+            )
+            self.qc_summary_text.set(
+                "Nie znaleziono poprawnych rekordów."
+            )
 
         for index, enzyme in enumerate(enzymes):
             tag = "even" if index % 2 else "odd"
@@ -651,7 +824,7 @@ class EnzymeExplorerApp:
                     enzyme.sequence_length,
                     enzyme.molecular_weight,
                     enzyme.reviewed_status,
-                    enzyme.quality_score,
+                    enzyme.qc_status,
                 ),
                 tags=(tag,),
             )
@@ -722,7 +895,10 @@ class EnzymeExplorerApp:
             f"Masa cząsteczkowa: {enzyme.molecular_weight}\n"
             f"Długość sekwencji: {enzyme.sequence_length}\n"
             f"Status rekordu: {enzyme.reviewed_status}\n"
-            f"Quality score: {enzyme.quality_score}/10\n\n"
+            f"Status QC: {enzyme.qc_status}\n"
+            f"Grupa duplikatów: {enzyme.duplicate_group or 'Brak'}\n"
+            f"Reprezentant grupy: "
+            f"{enzyme.representative_id or enzyme.uniprot_id}\n\n"
             f"Statystyki sekwencji:\n"
             f"- aminokwasy hydrofobowe: {enzyme.hydrophobic_count}\n"
             f"- procent aminokwasów hydrofobowych: "
@@ -974,11 +1150,11 @@ class EnzymeExplorerApp:
         try:
             output_dir = Path(selected_directory)
 
-            best_candidate_file = export_best_candidate_to_fasta(
-                self.enzymes[0],
+            all_enzymes_file = export_all_enzymes_to_fasta(
+                self.enzymes,
                 output_dir,
             )
-            all_enzymes_file = export_all_enzymes_to_fasta(
+            non_redundant_file = export_non_redundant_fasta(
                 self.enzymes,
                 output_dir,
             )
@@ -989,8 +1165,8 @@ class EnzymeExplorerApp:
             messagebox.showinfo(
                 "FASTA zapisane",
                 "Utworzono pliki FASTA:\n"
-                f"{best_candidate_file}\n"
-                f"{all_enzymes_file}",
+                f"{all_enzymes_file}\n"
+                f"{non_redundant_file}",
             )
 
         except Exception as error:

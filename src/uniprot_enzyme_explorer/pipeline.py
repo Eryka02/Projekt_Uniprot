@@ -7,19 +7,19 @@ from src.uniprot_enzyme_explorer.uniprot_client import (
     UniProtError,
     fetch_enzyme,
 )
-from src.uniprot_enzyme_explorer.analysis import rank_enzymes
+from src.uniprot_enzyme_explorer.analysis import analyze_enzymes
+from src.uniprot_enzyme_explorer.sequence_qc import (
+    find_duplicate_ids,
+    group_identical_sequences,
+)
 
 def parse_uniprot_ids(text: str) -> list[str]:
     candidates = re.split(r"[\s,;]+", text.upper())
-    uniprot_ids = []
-
-    for candidate in candidates:
-        candidate = candidate.strip()
-
-        if candidate and candidate not in uniprot_ids:
-            uniprot_ids.append(candidate)
-
-    return uniprot_ids
+    return [
+        candidate.strip()
+        for candidate in candidates
+        if candidate.strip()
+    ]
 
 
 def load_uniprot_ids(file_path: Path) -> list[str]:
@@ -40,9 +40,7 @@ def load_uniprot_ids_from_files(
     for file_path in file_paths:
         file_ids = load_uniprot_ids(file_path)
 
-        for uniprot_id in file_ids:
-            if uniprot_id not in all_ids:
-                all_ids.append(uniprot_id)
+        all_ids.extend(file_ids)
 
     logging.info(
         "Wczytano %s identyfikatorów z %s plików.",
@@ -58,8 +56,16 @@ def harvest_enzymes(
 ) -> tuple[list[EnzymeRecord], list[str]]:
     enzymes = []
     errors = []
+    duplicate_ids = find_duplicate_ids(uniprot_ids)
+    unique_ids = list(dict.fromkeys(uniprot_ids))
 
-    for uniprot_id in uniprot_ids:
+    logging.info(
+        "Wykryto %s powtórzone identyfikatory; pobieranie %s unikalnych ID.",
+        len(duplicate_ids),
+        len(unique_ids),
+    )
+
+    for uniprot_id in unique_ids:
         logging.info("Pobieranie rekordu: %s", uniprot_id)
 
         try:
@@ -72,11 +78,12 @@ def harvest_enzymes(
             errors.append(message)
             logging.warning(message)
 
-    ranked_enzymes = rank_enzymes(enzymes)
-
+    analyzed_enzymes = analyze_enzymes(enzymes)
+    duplicate_groups = group_identical_sequences(analyzed_enzymes)
     logging.info(
-        "Utworzono ranking enzymów dla %s rekordów.",
-        len(ranked_enzymes),
+        "Przeanalizowano %s rekordów; znaleziono %s grup duplikatów.",
+        len(analyzed_enzymes),
+        len(duplicate_groups),
     )
 
-    return ranked_enzymes, errors
+    return analyzed_enzymes, errors

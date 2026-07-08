@@ -81,10 +81,10 @@ def create_charts(enzymes, output_dir: Path):
     )
 
     save_bar_chart(
-        [enzyme.quality_score for enzyme in enzymes],
-        "Ranking jakości rekordów UniProt",
-        "Quality score",
-        "quality_scores.png",
+        [enzyme.cysteine_count for enzyme in enzymes],
+        "Liczba cystein w sekwencjach",
+        "Liczba cystein",
+        "cysteine_counts.png",
         "#54a24b",
     )
 

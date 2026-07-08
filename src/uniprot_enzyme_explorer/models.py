@@ -10,7 +10,6 @@ class EnzymeRecord:
     ec_number: str
     sequence: str
     reviewed_status: str = "Brak danych"
-    quality_score: int = 0
     hydrophobic_count: int = 0
     hydrophobic_percent: float = 0.0
     cysteine_count: int = 0
@@ -18,6 +17,10 @@ class EnzymeRecord:
     most_common_amino_acid: str = "Brak"
     sequence_length_category: str = "Brak"
     interpretation: str = ""
+    qc_status: str = "Unikalna"
+    duplicate_group: str | None = None
+    is_representative: bool = True
+    representative_id: str | None = None
 
     @property
     def sequence_length(self):

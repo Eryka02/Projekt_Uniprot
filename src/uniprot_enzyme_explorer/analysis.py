@@ -8,43 +8,6 @@ def has_value(value) -> bool:
     return value not in (None, "", "Brak", "Brak danych")
 
 
-def calculate_completeness_score(enzyme) -> int:
-    score = 0
-
-    if enzyme.reviewed_status == "reviewed":
-        score += 2
-
-    if has_value(enzyme.ec_number):
-        score += 2
-
-    if has_value(enzyme.sequence):
-        score += 2
-
-    if enzyme.molecular_weight:
-        score += 1
-
-    if has_value(enzyme.organism):
-        score += 1
-
-    if has_value(enzyme.protein_name):
-        score += 1
-
-    has_basic_data = all(
-        [
-            has_value(enzyme.uniprot_id),
-            has_value(enzyme.protein_name),
-            has_value(enzyme.organism),
-            has_value(enzyme.sequence),
-            enzyme.molecular_weight,
-        ]
-    )
-
-    if has_basic_data:
-        score += 1
-
-    return score
-
-
 def calculate_sequence_stats(sequence: str) -> dict:
     if not sequence:
         return {
@@ -113,24 +76,7 @@ def generate_interpretation(enzyme) -> str:
     if has_value(enzyme.sequence):
         parts.append("posiada sekwencję aminokwasową")
 
-    parts.append(
-        f"uzyskał wynik jakości {enzyme.quality_score}/10"
-    )
-
-    if enzyme.quality_score >= 8:
-        recommendation = (
-            "Może być bardzo dobrym kandydatem do dalszej analizy."
-        )
-    elif enzyme.quality_score >= 5:
-        recommendation = (
-            "Może być użyteczny, ale warto sprawdzić braki w adnotacji."
-        )
-    else:
-        recommendation = (
-            "Wymaga ostrożności, ponieważ rekord ma niską kompletność danych."
-        )
-
-    return ", ".join(parts) + ". " + recommendation
+    return ", ".join(parts) + "."
 
 
 def analyze_enzyme(enzyme):
@@ -145,25 +91,14 @@ def analyze_enzyme(enzyme):
         "sequence_length_category"
     ]
 
-    enzyme.quality_score = calculate_completeness_score(enzyme)
     enzyme.interpretation = generate_interpretation(enzyme)
 
     return enzyme
 
 
-def rank_enzymes(enzymes):
-    analyzed_enzymes = [
+def analyze_enzymes(enzymes):
+    """Oblicz statystyki bez oceniania i sortowania rekordów."""
+    return [
         analyze_enzyme(enzyme)
         for enzyme in enzymes
     ]
-
-    return sorted(
-        analyzed_enzymes,
-        key=lambda enzyme: (
-            enzyme.quality_score,
-            has_value(enzyme.ec_number),
-            enzyme.reviewed_status == "reviewed",
-            has_value(enzyme.sequence),
-        ),
-        reverse=True,
-    )
