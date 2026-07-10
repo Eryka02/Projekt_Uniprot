@@ -9,6 +9,8 @@ class EnzymeRecord:
     molecular_weight: int
     ec_number: str
     sequence: str
+    nucleotide_sequence: str = ""
+    nucleotide_source: str = "Brak danych"
     reviewed_status: str = "Brak danych"
     hydrophobic_count: int = 0
     hydrophobic_percent: float = 0.0
@@ -21,6 +23,12 @@ class EnzymeRecord:
     duplicate_group: str | None = None
     is_representative: bool = True
     representative_id: str | None = None
+    function_description: str = "Brak danych"
+    catalytic_activity: str = "Brak danych"
+    cofactors: str = "Brak danych"
+    subcellular_location: str = "Brak danych"
+    feature_summary: str = "Brak danych"
+    structure_summary: str = "Brak danych"
 
     @property
     def sequence_length(self):

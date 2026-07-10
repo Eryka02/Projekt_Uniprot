@@ -34,6 +34,8 @@ def save_processed_records(records: list[EnzymeRecord]):
                 "molecular_weight": record.molecular_weight,
                 "ec_number": record.ec_number,
                 "sequence": record.sequence,
+                "nucleotide_sequence": record.nucleotide_sequence,
+                "nucleotide_source": record.nucleotide_source,
                 "reviewed_status": record.reviewed_status,
                 "hydrophobic_count": record.hydrophobic_count,
                 "hydrophobic_percent": record.hydrophobic_percent,
@@ -46,6 +48,12 @@ def save_processed_records(records: list[EnzymeRecord]):
                 "duplicate_group": record.duplicate_group,
                 "is_representative": record.is_representative,
                 "representative_id": record.representative_id,
+                "function_description": record.function_description,
+                "catalytic_activity": record.catalytic_activity,
+                "cofactors": record.cofactors,
+                "subcellular_location": record.subcellular_location,
+                "feature_summary": record.feature_summary,
+                "structure_summary": record.structure_summary,
             }
         )
 
@@ -59,7 +67,7 @@ def export_all_enzymes_to_fasta(records: list[EnzymeRecord], output_dir=None) ->
     fasta_dir = Path(output_dir) if output_dir else FASTA_OUTPUT_DIR
     fasta_dir.mkdir(parents=True, exist_ok=True)
 
-    output_file = fasta_dir / "all_analyzed_enzymes.fasta"
+    output_file = fasta_dir / "wszystkie_sekwencje_aminokwasowe.fasta"
 
     fasta_records = []
 
@@ -75,7 +83,8 @@ def export_all_enzymes_to_fasta(records: list[EnzymeRecord], output_dir=None) ->
             )
         )
 
-    SeqIO.write(fasta_records, output_file, "fasta")
+    with output_file.open("w", encoding="utf-8") as file:
+        SeqIO.write(fasta_records, file, "fasta")
 
     logging.info("Zapisano wszystkie enzymy FASTA: %s", output_file)
 
@@ -86,10 +95,9 @@ def export_non_redundant_fasta(
     records: list[EnzymeRecord],
     output_dir=None,
 ) -> Path:
-    """Zapisz po jednej reprezentatywnej sekwencji z każdej grupy."""
     fasta_dir = Path(output_dir) if output_dir else FASTA_OUTPUT_DIR
     fasta_dir.mkdir(parents=True, exist_ok=True)
-    output_file = fasta_dir / "non_redundant_sequences.fasta"
+    output_file = fasta_dir / "reprezentatywne_sekwencje_aminokwasowe.fasta"
     selected_records = prepare_non_redundant_set(records)
 
     fasta_records = [
@@ -103,9 +111,73 @@ def export_non_redundant_fasta(
         )
         for record in selected_records
     ]
-    SeqIO.write(fasta_records, output_file, "fasta")
+    with output_file.open("w", encoding="utf-8") as file:
+        SeqIO.write(fasta_records, file, "fasta")
     logging.info(
         "Zapisano %s niedublujących się sekwencji FASTA: %s",
+        len(fasta_records),
+        output_file,
+    )
+    return output_file
+
+
+def export_all_nucleotide_sequences_to_fasta(
+    records: list[EnzymeRecord],
+    output_dir=None,
+) -> Path:
+    fasta_dir = Path(output_dir) if output_dir else FASTA_OUTPUT_DIR
+    fasta_dir.mkdir(parents=True, exist_ok=True)
+
+    output_file = fasta_dir / "wszystkie_sekwencje_nukleotydowe.fasta"
+    fasta_records = [
+        SeqRecord(
+            Seq(record.nucleotide_sequence),
+            id=f"{record.uniprot_id}_nucleotide",
+            description=(
+                f"{record.protein_name} | {record.organism} | "
+                f"EC: {record.ec_number} | źródło: {record.nucleotide_source}"
+            ),
+        )
+        for record in records
+        if record.nucleotide_sequence
+    ]
+
+    with output_file.open("w", encoding="utf-8") as file:
+        SeqIO.write(fasta_records, file, "fasta")
+    logging.info(
+        "Zapisano %s sekwencji nukleotydowych FASTA: %s",
+        len(fasta_records),
+        output_file,
+    )
+    return output_file
+
+
+def export_representative_nucleotide_sequences_to_fasta(
+    records: list[EnzymeRecord],
+    output_dir=None,
+) -> Path:
+    fasta_dir = Path(output_dir) if output_dir else FASTA_OUTPUT_DIR
+    fasta_dir.mkdir(parents=True, exist_ok=True)
+
+    output_file = fasta_dir / "reprezentatywne_sekwencje_nukleotydowe.fasta"
+    selected_records = prepare_non_redundant_set(records)
+    fasta_records = [
+        SeqRecord(
+            Seq(record.nucleotide_sequence),
+            id=f"{record.uniprot_id}_nucleotide",
+            description=(
+                f"{record.protein_name} | {record.organism} | "
+                f"EC: {record.ec_number} | źródło: {record.nucleotide_source}"
+            ),
+        )
+        for record in selected_records
+        if record.nucleotide_sequence
+    ]
+
+    with output_file.open("w", encoding="utf-8") as file:
+        SeqIO.write(fasta_records, file, "fasta")
+    logging.info(
+        "Zapisano %s reprezentatywnych sekwencji nukleotydowych FASTA: %s",
         len(fasta_records),
         output_file,
     )

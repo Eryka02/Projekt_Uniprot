@@ -1,6 +1,12 @@
 from pathlib import Path
+from collections import Counter
 
 import matplotlib.pyplot as plt
+
+from src.uniprot_enzyme_explorer.ec_classes import (
+    EC_CLASS_GROUP_LABELS,
+    get_ec_class_group_label,
+)
 
 
 def _chart_size(item_count: int) -> tuple[float, float]:
@@ -62,6 +68,51 @@ def _save_bar_chart(
     plt.close(figure)
 
 
+def _save_ec_class_chart(enzymes, output_file: Path):
+    counts = Counter(
+        get_ec_class_group_label(enzyme.ec_number)
+        for enzyme in enzymes
+    )
+
+    ordered_labels = [
+        label
+        for label in EC_CLASS_GROUP_LABELS.values()
+        if counts.get(label)
+    ]
+
+    if counts.get("Brak EC"):
+        ordered_labels.append("Brak EC")
+
+    values = [
+        counts[label]
+        for label in ordered_labels
+    ]
+
+    figure, axes = plt.subplots(figsize=(9.5, 6.0))
+    positions = range(len(ordered_labels))
+    axes.bar(
+        positions,
+        values,
+        color="#7f9c3a",
+        edgecolor="#333333",
+        linewidth=0.5,
+    )
+    axes.set_title("Rodzaje enzymów według klasy EC", fontsize=13, pad=12)
+    axes.set_ylabel("Liczba enzymów")
+    axes.set_xticks(list(positions))
+    axes.set_xticklabels(
+        ordered_labels,
+        rotation=25 if len(ordered_labels) > 4 else 0,
+        ha="right" if len(ordered_labels) > 4 else "center",
+        fontsize=8,
+    )
+    axes.grid(axis="y", linestyle="--", alpha=0.3)
+    axes.set_axisbelow(True)
+    figure.tight_layout(pad=1.5)
+    figure.savefig(output_file, dpi=90)
+    plt.close(figure)
+
+
 def create_charts(enzymes, output_dir: Path):
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -116,32 +167,8 @@ def create_charts(enzymes, output_dir: Path):
         "#b279a2",
     )
 
-    reviewed_count = sum(
-        1 for enzyme in enzymes
-        if enzyme.reviewed_status == "reviewed"
-    )
-    unreviewed_count = sum(
-        1 for enzyme in enzymes
-        if enzyme.reviewed_status == "unreviewed"
-    )
-
-    status_chart_path = output_dir / "reviewed_status.png"
-    figure, axes = plt.subplots(figsize=(7.5, 5.8))
-    axes.bar(
-        ["reviewed", "unreviewed"],
-        [reviewed_count, unreviewed_count],
-        color=["#59a14f", "#e15759"],
-        edgecolor="#333333",
-        linewidth=0.5,
-    )
-    axes.set_title("Liczba rekordów reviewed i unreviewed", fontsize=13, pad=12)
-    axes.set_ylabel("Liczba rekordów")
-    axes.grid(axis="y", linestyle="--", alpha=0.3)
-    axes.set_axisbelow(True)
-    figure.tight_layout(pad=1.5)
-    figure.savefig(status_chart_path, dpi=90)
-    plt.close(figure)
-
-    chart_files.append(status_chart_path)
+    ec_class_chart_path = output_dir / "ec_classes.png"
+    _save_ec_class_chart(enzymes, ec_class_chart_path)
+    chart_files.append(ec_class_chart_path)
 
     return chart_files

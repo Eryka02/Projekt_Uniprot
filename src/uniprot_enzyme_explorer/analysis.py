@@ -59,24 +59,33 @@ def calculate_sequence_stats(sequence: str) -> dict:
 
 
 def generate_interpretation(enzyme) -> str:
-    parts = [
-        f"Rekord {enzyme.uniprot_id}",
-    ]
-
     if enzyme.reviewed_status == "reviewed":
-        parts.append("jest rekordem reviewed/Swiss-Prot")
+        status = "jest rekordem reviewed/Swiss-Prot"
     else:
-        parts.append("jest rekordem unreviewed/TrEMBL")
+        status = "jest rekordem unreviewed/TrEMBL"
 
     if has_value(enzyme.ec_number):
-        parts.append("posiada numer EC")
+        ec_text = "posiada numer EC"
     else:
-        parts.append("nie posiada numeru EC")
+        ec_text = "nie posiada numeru EC"
 
+    sequence_text = "nie ma sekwencji aminokwasowej"
     if has_value(enzyme.sequence):
-        parts.append("posiada sekwencję aminokwasową")
+        sequence_text = "posiada sekwencję aminokwasową"
 
-    return ", ".join(parts) + "."
+    sentences = [
+        f"Rekord {enzyme.uniprot_id} {status}, {ec_text} i {sequence_text}.",
+    ]
+
+    if has_value(getattr(enzyme, "structure_summary", None)):
+        sentences.append(f"Struktura: {enzyme.structure_summary}.")
+    else:
+        sentences.append(
+            "Struktura: w rekordzie UniProt nie znaleziono informacji "
+            "o PDB, AlphaFold ani strukturze drugorzędowej."
+        )
+
+    return " ".join(sentences)
 
 
 def analyze_enzyme(enzyme):
@@ -97,7 +106,6 @@ def analyze_enzyme(enzyme):
 
 
 def analyze_enzymes(enzymes):
-    """Oblicz statystyki bez oceniania i sortowania rekordów."""
     return [
         analyze_enzyme(enzyme)
         for enzyme in enzymes

@@ -7,7 +7,6 @@ from src.uniprot_enzyme_explorer.ui import EnzymeExplorerApp
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent
-INPUT_FILE = PROJECT_ROOT / "data" / "input_ids.txt"
 LOG_FILE = PROJECT_ROOT / "logs" / "app.log"
 
 
@@ -16,7 +15,7 @@ def main():
     logging.info("Uruchomiono interfejs graficzny.")
 
     root = tk.Tk()
-    EnzymeExplorerApp(root, PROJECT_ROOT, INPUT_FILE)
+    EnzymeExplorerApp(root, PROJECT_ROOT)
     root.mainloop()
 
 

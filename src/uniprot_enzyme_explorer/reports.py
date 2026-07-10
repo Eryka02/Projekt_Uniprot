@@ -5,13 +5,16 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 
 from src.uniprot_enzyme_explorer.models import EnzymeRecord
+from src.uniprot_enzyme_explorer.ui_formatters import table_check_status
 
 
 def export_to_csv(
     records: list[EnzymeRecord],
     output_file: Path,
+    input_duplicate_ids: dict[str, int] | None = None,
 ) -> Path:
     output_file.parent.mkdir(parents=True, exist_ok=True)
+    input_duplicate_ids = input_duplicate_ids or {}
 
     fieldnames = [
         "uniprot_id",
@@ -21,16 +24,16 @@ def export_to_csv(
         "sequence_length",
         "molecular_weight_da",
         "reviewed_status",
-        "qc_status",
-        "duplicate_group",
-        "is_representative",
+        "status_identycznej_sekwencji",
+        "grupa_identycznej_sekwencji",
+        "czy_reprezentant",
         "hydrophobic_percent",
         "cysteine_count",
         "cysteine_percent",
         "most_common_amino_acid",
-        "sequence_length_category",
         "interpretation",
         "sequence",
+        "sprawdzenie",
     ]
     with output_file.open(
         mode="w",
@@ -46,6 +49,7 @@ def export_to_csv(
         writer.writeheader()
 
         for record in records:
+            input_count = input_duplicate_ids.get(record.uniprot_id, 0)
             writer.writerow(
                 {
                     "uniprot_id": record.uniprot_id,
@@ -55,16 +59,18 @@ def export_to_csv(
                     "sequence_length": record.sequence_length,
                     "molecular_weight_da": record.molecular_weight,
                     "reviewed_status": record.reviewed_status,
-                    "qc_status": record.qc_status,
-                    "duplicate_group": record.duplicate_group or "",
-                    "is_representative": record.is_representative,
+                    "status_identycznej_sekwencji": record.qc_status,
+                    "grupa_identycznej_sekwencji": record.duplicate_group or "",
+                    "czy_reprezentant": (
+                        "tak" if record.is_representative else "nie"
+                    ),
                     "hydrophobic_percent": record.hydrophobic_percent,
                     "cysteine_count": record.cysteine_count,
                     "cysteine_percent": record.cysteine_percent,
                     "most_common_amino_acid": record.most_common_amino_acid,
-                    "sequence_length_category": record.sequence_length_category,
                     "interpretation": record.interpretation,
                     "sequence": record.sequence,
+                    "sprawdzenie": table_check_status(record, input_count),
                 }
             )
 
@@ -74,8 +80,10 @@ def export_to_csv(
 def export_to_xlsx(
     records: list[EnzymeRecord],
     output_file: Path,
+    input_duplicate_ids: dict[str, int] | None = None,
 ) -> Path:
     output_file.parent.mkdir(parents=True, exist_ok=True)
+    input_duplicate_ids = input_duplicate_ids or {}
 
     workbook = Workbook()
     worksheet = workbook.active
@@ -89,21 +97,22 @@ def export_to_xlsx(
         "Długość sekwencji",
         "Masa cząsteczkowa",
         "Status rekordu",
-        "Status QC",
-        "Grupa duplikatów",
+        "Status identycznej sekwencji",
+        "Grupa 100% identycznej sekwencji",
         "Czy reprezentant",
         "Aminokwasy hydrofobowe [%]",
         "Liczba cystein",
         "Cysteiny [%]",
         "Najczęstszy aminokwas",
-        "Kategoria długości",
         "Interpretacja",
         "Sekwencja",
+        "Sprawdzenie",
     ]
 
     worksheet.append(headers)
 
     for record in records:
+        input_count = input_duplicate_ids.get(record.uniprot_id, 0)
         worksheet.append(
             [
                 record.uniprot_id,
@@ -120,9 +129,9 @@ def export_to_xlsx(
                 record.cysteine_count,
                 record.cysteine_percent,
                 record.most_common_amino_acid,
-                record.sequence_length_category,
                 record.interpretation,
                 record.sequence,
+                table_check_status(record, input_count),
             ]
         )
 
@@ -143,7 +152,17 @@ def export_to_xlsx(
         "D": 18,
         "E": 14,
         "F": 14,
-        "G": 60,
+        "G": 24,
+        "H": 28,
+        "I": 32,
+        "J": 16,
+        "K": 24,
+        "L": 16,
+        "M": 14,
+        "N": 20,
+        "O": 45,
+        "P": 60,
+        "Q": 28,
     }
 
     for column, width in column_widths.items():

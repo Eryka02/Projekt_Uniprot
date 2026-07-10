@@ -1,17 +1,22 @@
 import logging
 import re
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
-from src.uniprot_enzyme_explorer.models import EnzymeRecord
-from src.uniprot_enzyme_explorer.uniprot_client import (
-    UniProtError,
-    fetch_enzyme,
-)
 from src.uniprot_enzyme_explorer.analysis import analyze_enzymes
+from src.uniprot_enzyme_explorer.models import EnzymeRecord
 from src.uniprot_enzyme_explorer.sequence_qc import (
     find_duplicate_ids,
     group_identical_sequences,
 )
+from src.uniprot_enzyme_explorer.uniprot_client import (
+    UniProtError,
+    fetch_enzyme,
+)
+
+
+MAX_DOWNLOAD_WORKERS = 5
+
 
 def parse_uniprot_ids(text: str) -> list[str]:
     candidates = re.split(r"[\s,;]+", text.upper())
@@ -32,6 +37,7 @@ def load_uniprot_ids(file_path: Path) -> list[str]:
 
     return parse_uniprot_ids("".join(lines))
 
+
 def load_uniprot_ids_from_files(
     file_paths: list[Path],
 ) -> list[str]:
@@ -39,7 +45,6 @@ def load_uniprot_ids_from_files(
 
     for file_path in file_paths:
         file_ids = load_uniprot_ids(file_path)
-
         all_ids.extend(file_ids)
 
     logging.info(
@@ -54,10 +59,10 @@ def load_uniprot_ids_from_files(
 def harvest_enzymes(
     uniprot_ids: list[str],
 ) -> tuple[list[EnzymeRecord], list[str]]:
-    enzymes = []
     errors = []
     duplicate_ids = find_duplicate_ids(uniprot_ids)
     unique_ids = list(dict.fromkeys(uniprot_ids))
+    enzymes_by_index = [None] * len(unique_ids)
 
     logging.info(
         "Wykryto %s powtórzone identyfikatory; pobieranie %s unikalnych ID.",
@@ -65,18 +70,38 @@ def harvest_enzymes(
         len(unique_ids),
     )
 
-    for uniprot_id in unique_ids:
-        logging.info("Pobieranie rekordu: %s", uniprot_id)
+    worker_count = min(MAX_DOWNLOAD_WORKERS, len(unique_ids)) or 1
 
-        try:
-            enzyme = fetch_enzyme(uniprot_id)
-            enzymes.append(enzyme)
-            logging.info("Pobrano rekord: %s", uniprot_id)
+    with ThreadPoolExecutor(max_workers=worker_count) as executor:
+        future_to_record = {
+            executor.submit(fetch_enzyme, uniprot_id): (index, uniprot_id)
+            for index, uniprot_id in enumerate(unique_ids)
+        }
 
-        except UniProtError as error:
-            message = f"{uniprot_id}: {error}"
-            errors.append(message)
-            logging.warning(message)
+        for future in as_completed(future_to_record):
+            index, uniprot_id = future_to_record[future]
+            logging.info("Pobieranie rekordu: %s", uniprot_id)
+
+            try:
+                enzyme = future.result()
+                enzymes_by_index[index] = enzyme
+                logging.info("Pobrano rekord: %s", uniprot_id)
+
+            except UniProtError as error:
+                message = f"{uniprot_id}: {error}"
+                errors.append(message)
+                logging.warning(message)
+
+            except Exception as error:
+                logging.exception("Nieoczekiwany błąd pobierania rekordu.")
+                message = f"{uniprot_id}: {error}"
+                errors.append(message)
+
+    enzymes = [
+        enzyme
+        for enzyme in enzymes_by_index
+        if enzyme is not None
+    ]
 
     analyzed_enzymes = analyze_enzymes(enzymes)
     duplicate_groups = group_identical_sequences(analyzed_enzymes)
